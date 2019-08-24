@@ -24,7 +24,7 @@ namespace Web_GEarth.Controllers
 
         public IEnumerable<Route> Get()
         {
-            return context.Routes;
+            return context.Routes.Include(r => r.Comments);
         }
 
         //GET api/Routes/5

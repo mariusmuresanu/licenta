@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web_GEarth.Models;
 
 namespace Web_GEarth.Migrations
 {
     [DbContext(typeof(RoutesDbContext))]
-    partial class RoutesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190824232306_AddCommentsModel")]
+    partial class AddCommentsModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,13 +29,9 @@ namespace Web_GEarth.Migrations
 
                     b.Property<bool>("Important");
 
-                    b.Property<int?>("RouteId");
-
                     b.Property<string>("Text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RouteId");
 
                     b.ToTable("Comments");
                 });
@@ -57,13 +55,6 @@ namespace Web_GEarth.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Routes");
-                });
-
-            modelBuilder.Entity("Web_GEarth.Models.Comment", b =>
-                {
-                    b.HasOne("Web_GEarth.Models.Route")
-                        .WithMany("Comments")
-                        .HasForeignKey("RouteId");
                 });
 #pragma warning restore 612, 618
         }

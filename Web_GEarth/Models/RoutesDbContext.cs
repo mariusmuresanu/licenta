@@ -14,5 +14,6 @@ namespace Web_GEarth.Models
         }
 
         public DbSet<Route> Routes { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

@@ -26,6 +26,7 @@ namespace Web_GEarth.Models
         [EnumDataType(typeof(ActivityType))]
         public ActivityType ActivityType { get; set; }
         public DateTime DateRecorded { get; set; }
+        public List<Comment> Comments { get; set; }
         
     }
 }
