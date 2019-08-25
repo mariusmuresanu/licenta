@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Web_GEarth.Services;
 
 namespace Web_GEarth
 {
@@ -28,6 +29,8 @@ namespace Web_GEarth
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddDbContext<Models.RoutesDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IRouteService, RouteService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

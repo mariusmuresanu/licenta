@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_GEarth.Models;
+using Web_GEarth.Services;
 
 namespace Web_GEarth.Controllers
 {
@@ -13,10 +14,10 @@ namespace Web_GEarth.Controllers
     [ApiController]
     public class RoutesController : ControllerBase
     {
-        private RoutesDbContext context;
-        public RoutesController(RoutesDbContext context)
+        private IRouteService routeService;
+        public RoutesController(IRouteService routeService)
         {
-            this.context = context;
+            this.routeService = routeService;
         }
 
         //GET: api/Routes
@@ -24,21 +25,7 @@ namespace Web_GEarth.Controllers
 
         public IEnumerable<Route> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to)
         {
-            IQueryable<Route> result = context.Routes.Include(r => r.Comments);
-            if (from == null && to == null)
-            {
-                return result;
-            }
-            if (from != null)
-            {
-                result = context.Routes.Where(r => r.DateRecorded >= from);
-            }
-            if (to != null)
-            {
-                result = context.Routes.Where(r => r.DateRecorded <= to);
-            }
-            // return context.Routes.Include(r => r.Comments);
-            return result;
+            return routeService.GetAll(from, to);
         }
 
         //GET api/Routes/5
@@ -46,12 +33,12 @@ namespace Web_GEarth.Controllers
         [HttpGet("{id}", Name = "Get")]
         public IActionResult Get(int id)
         {
-            var existing = context.Routes.FirstOrDefault(route => route.Id == id);
-            if (existing == null)
+            var found = routeService.GetById(id);
+            if (found == null)
             {
                 return NotFound();
             }
-            return Ok(existing);
+            return Ok(found);
         }
 
         //POST: api/Routes
@@ -59,11 +46,7 @@ namespace Web_GEarth.Controllers
         [HttpPost]
         public void Post([FromBody] Route route)
         {
-            //if(!ModelState.IsValid)
-            //{
-            //}
-            context.Routes.Add(route);
-            context.SaveChanges();
+            routeService.Create(route);
         }
 
         //PUT: api/Routes/5
@@ -71,32 +54,21 @@ namespace Web_GEarth.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] Route route)
         {
-            var existing = context.Routes.AsNoTracking().FirstOrDefault(r => r.Id == id);
-            if (existing == null)
-            {
-                context.Routes.Add(route);
-                context.SaveChanges();
-                return Ok(route);
-            }
-            route.Id = id;
-            context.Routes.Update(route);
-            context.SaveChanges();
-            return Ok(route);
+            var result = routeService.Upsert(id, route);
+            return Ok(result);
         }
 
         //DELETE: api/ApiWithActions/5
 
         [HttpDelete("{id}")]
         public IActionResult Delete (int id)
-        { 
-            var existing = context.Routes.AsNoTracking().FirstOrDefault(r => r.Id == id);
-            if (existing == null)
+        {
+            var result = routeService.Delete(id);
+            if (result == null)
             {
                 return NotFound();
             }
-            context.Routes.Remove(existing);
-            context.SaveChanges();
-            return Ok();
+            return Ok(result);
         }
     }
 }
