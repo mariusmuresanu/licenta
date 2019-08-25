@@ -22,9 +22,23 @@ namespace Web_GEarth.Controllers
         //GET: api/Routes
         [HttpGet]
 
-        public IEnumerable<Route> Get()
+        public IEnumerable<Route> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to)
         {
-            return context.Routes.Include(r => r.Comments);
+            IQueryable<Route> result = context.Routes.Include(r => r.Comments);
+            if (from == null && to == null)
+            {
+                return result;
+            }
+            if (from != null)
+            {
+                result = context.Routes.Where(r => r.DateRecorded >= from);
+            }
+            if (to != null)
+            {
+                result = context.Routes.Where(r => r.DateRecorded <= to);
+            }
+            // return context.Routes.Include(r => r.Comments);
+            return result;
         }
 
         //GET api/Routes/5
