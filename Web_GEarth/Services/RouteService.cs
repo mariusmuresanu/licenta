@@ -5,15 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web_GEarth.Models;
+using Web_GEarth.ViewModels;
 using Route = Web_GEarth.Models.Route;
 
 namespace Web_GEarth.Services
 {
     public interface IRouteService
     {
-        IEnumerable<Route> GetAll(DateTime? from=null, DateTime? to=null);
+        IEnumerable<RouteGetModel> GetAll(DateTime? from=null, DateTime? to=null);
         Route GetById(int id);
-        Route Create(Route route);
+        Route Create(RoutePostModel route);
         Route Upsert(int id, Route route);
         Route Delete(int id);
     }
@@ -25,11 +26,12 @@ namespace Web_GEarth.Services
             this.context = context;
         }
 
-        public Route Create(Route route)
+        public Route Create(RoutePostModel route)
         {
-            context.Routes.Add(route);
+            Route toAdd = RoutePostModel.ToRoute(route);
+            context.Routes.Add(toAdd);
             context.SaveChanges();
-            return route;
+            return toAdd;
         }
 
         public Route Delete(int id)
@@ -44,12 +46,14 @@ namespace Web_GEarth.Services
             return existing;
         }
 
-        public IEnumerable<Route> GetAll(DateTime? from=null, DateTime? to=null)
+        public IEnumerable<RouteGetModel> GetAll(DateTime? from=null, DateTime? to=null)
         {
-            IQueryable<Route> result = context.Routes.Include(r => r.Comments);
+            IQueryable<Route> result = context
+                .Routes
+                .Include(r => r.Comments);
             if (from == null && to == null)
             {
-                return result;
+                return result.Select(r => RouteGetModel.FromRoute(r));
             }
             if (from != null)
             {
@@ -59,7 +63,7 @@ namespace Web_GEarth.Services
             {
                 result = context.Routes.Where(r => r.DateRecorded <= to);
             }
-            return result;
+            return result.Select(r => RouteGetModel.FromRoute(r));
         }
 
         public Route GetById(int id)

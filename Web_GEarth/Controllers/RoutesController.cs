@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web_GEarth.Models;
 using Web_GEarth.Services;
+using Web_GEarth.ViewModels;
 
 namespace Web_GEarth.Controllers
 {
@@ -23,7 +24,7 @@ namespace Web_GEarth.Controllers
         //GET: api/Routes
         [HttpGet]
 
-        public IEnumerable<Route> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to)
+        public IEnumerable<RouteGetModel> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to)
         {
             return routeService.GetAll(from, to);
         }
@@ -44,7 +45,7 @@ namespace Web_GEarth.Controllers
         //POST: api/Routes
 
         [HttpPost]
-        public void Post([FromBody] Route route)
+        public void Post([FromBody] RoutePostModel route)
         {
             routeService.Create(route);
         }
