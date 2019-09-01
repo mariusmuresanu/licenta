@@ -36,7 +36,9 @@ namespace Web_GEarth.Services
 
         public Route Delete(int id)
         {
-            var existing = context.Routes.FirstOrDefault(route => route.Id == id);
+            var existing = context.Routes
+                .Include(r =>r.Comments)
+                .FirstOrDefault(route => route.Id == id);
             if (existing == null)
             {
                 return null;
