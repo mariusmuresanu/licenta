@@ -88,6 +88,12 @@ namespace Web_GEarth.Services
 
         public UserGetModel Register(RegisterPostModel registerInfo)
         {
+            User existing = context.Users.FirstOrDefault(u => u.Username == registerInfo.Username);
+            if (existing != null)
+            {
+                return null;
+            }
+
             context.Users.Add(new User
             {
                 Email = registerInfo.Email,

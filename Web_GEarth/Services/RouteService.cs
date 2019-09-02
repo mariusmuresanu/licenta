@@ -12,7 +12,7 @@ namespace Web_GEarth.Services
 {
     public interface IRouteService
     {
-        IEnumerable<RouteGetModel> GetAll(DateTime? from=null, DateTime? to=null);
+        PaginatedList<RouteGetModel> GetAll(int page, DateTime? from=null, DateTime? to=null);
         Route GetById(int id);
         Route Create(RoutePostModel route);
         Route Upsert(int id, Route route);
@@ -48,24 +48,30 @@ namespace Web_GEarth.Services
             return existing;
         }
 
-        public IEnumerable<RouteGetModel> GetAll(DateTime? from=null, DateTime? to=null)
+        public PaginatedList<RouteGetModel> GetAll(int page, DateTime? from = null, DateTime? to = null)
         {
             IQueryable<Route> result = context
                 .Routes
+                .OrderBy(r => r.Id)
                 .Include(r => r.Comments);
-            if (from == null && to == null)
-            {
-                return result.Select(r => RouteGetModel.FromRoute(r));
-            }
+            PaginatedList<RouteGetModel> paginatedResult = new PaginatedList<RouteGetModel>();
+            paginatedResult.CurrentPage = page;
+
             if (from != null)
             {
-                result = context.Routes.Where(r => r.DateRecorded >= from);
+                result = result.Where(r => r.DateRecorded >= from);
             }
             if (to != null)
             {
-                result = context.Routes.Where(r => r.DateRecorded <= to);
+                result = result.Where(r => r.DateRecorded <= to);
             }
-            return result.Select(r => RouteGetModel.FromRoute(r));
+            paginatedResult.NumberOfPages = (result.Count() - 1) / PaginatedList<RouteGetModel>.EntriesPerPage + 1;
+            result = result
+                .Skip((page - 1) * PaginatedList<RouteGetModel>.EntriesPerPage)
+                .Take(PaginatedList<RouteGetModel>.EntriesPerPage);
+            paginatedResult.Entries = result.Select(r => RouteGetModel.FromRoute(r)).ToList();
+
+            return paginatedResult;
         }
 
         public Route GetById(int id)

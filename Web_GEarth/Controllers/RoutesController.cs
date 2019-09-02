@@ -24,9 +24,10 @@ namespace Web_GEarth.Controllers
         //GET: api/Routes
         [HttpGet]
 
-        public IEnumerable<RouteGetModel> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to)
+        public PaginatedList<RouteGetModel> Get([FromQuery]DateTime? from, [FromQuery]DateTime? to, [FromQuery]int page = 1)
         {
-            return routeService.GetAll(from, to);
+            page = Math.Max(page, 1);
+            return routeService.GetAll(page, from, to);
         }
 
         //GET api/Routes/5
