@@ -15,6 +15,7 @@ namespace Web_GEarth.ViewModels
         public int Type { get; set; }
         public string ActivityType { get; set; }
         public DateTime DateRecorded { get; set; }
+        public List<Comment> Comments { get; set; }
 
         public static Route ToRoute(RoutePostModel route)
         {
@@ -42,7 +43,8 @@ namespace Web_GEarth.ViewModels
                 Location = route.Location,
                 Type = route.Type,
                 DateRecorded = route.DateRecorded,
-                ActivityType = activityType
+                ActivityType = activityType,
+                Comments = route.Comments
             };
         }
     }

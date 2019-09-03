@@ -14,7 +14,7 @@ namespace Web_GEarth.Services
     {
         PaginatedList<RouteGetModel> GetAll(int page, DateTime? from=null, DateTime? to=null);
         Route GetById(int id);
-        Route Create(RoutePostModel route);
+        Route Create(RoutePostModel route, User addedBy);
         Route Upsert(int id, Route route);
         Route Delete(int id);
     }
@@ -26,9 +26,10 @@ namespace Web_GEarth.Services
             this.context = context;
         }
 
-        public Route Create(RoutePostModel route)
+        public Route Create(RoutePostModel route, User addedBy)
         {
             Route toAdd = RoutePostModel.ToRoute(route);
+            toAdd.Owner = addedBy;
             context.Routes.Add(toAdd);
             context.SaveChanges();
             return toAdd;

@@ -16,9 +16,11 @@ namespace Web_GEarth.Controllers
     public class RoutesController : ControllerBase
     {
         private IRouteService routeService;
-        public RoutesController(IRouteService routeService)
+        private IUsersService usersService;
+        public RoutesController(IRouteService routeService, IUsersService usersService)
         {
             this.routeService = routeService;
+            this.usersService = usersService;
         }
 
         //GET: api/Routes
@@ -48,7 +50,8 @@ namespace Web_GEarth.Controllers
         [HttpPost]
         public void Post([FromBody] RoutePostModel route)
         {
-            routeService.Create(route);
+            User addedBy = usersService.GetCurrentUser(HttpContext);
+            routeService.Create(route, addedBy);
         }
 
         //PUT: api/Routes/5

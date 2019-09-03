@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace Web_GEarth.Services
     {
         UserGetModel Authenticate(string username, string password);
         UserGetModel Register(RegisterPostModel registerInfo);
+        User GetCurrentUser(HttpContext httpContext);
         IEnumerable<UserGetModel> GetAll();
     }
 
@@ -104,6 +106,14 @@ namespace Web_GEarth.Services
             });
             context.SaveChanges();
             return Authenticate(registerInfo.Username, registerInfo.Password);
+        }
+
+        public User GetCurrentUser(HttpContext httpContext)
+        {
+            string username = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+            //string accountType = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.AuthenticationMethod).Value;
+            //return _context.Users.FirstOrDefault(u => u.Username == username && u.AccountType.ToString() == accountType);
+            return context.Users.FirstOrDefault(u => u.Username == username);
         }
 
         public IEnumerable<UserGetModel> GetAll()

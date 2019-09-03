@@ -27,6 +27,7 @@ namespace Web_GEarth.Models
         public ActivityType ActivityType { get; set; }
         public DateTime DateRecorded { get; set; }
         public List<Comment> Comments { get; set; }
-        
+        public User Owner { get; set; }
+
     }
 }
