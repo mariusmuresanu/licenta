@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +48,9 @@ namespace Web_GEarth.Controllers
 
         //POST: api/Routes
 
+        [Authorize(Roles = "Admin,Regular")]
         [HttpPost]
+
         public void Post([FromBody] RoutePostModel route)
         {
             User addedBy = usersService.GetCurrentUser(HttpContext);

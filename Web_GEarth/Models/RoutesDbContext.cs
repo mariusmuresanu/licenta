@@ -18,6 +18,11 @@ namespace Web_GEarth.Models
             builder.Entity<User>(entity => {
                 entity.HasIndex(u => u.Username).IsUnique();
             });
+
+            builder.Entity<Comment>()
+                .HasOne(f => f.Route)
+                .WithMany(c => c.Comments)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Route> Routes { get; set; }
