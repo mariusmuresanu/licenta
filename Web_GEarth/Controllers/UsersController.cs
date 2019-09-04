@@ -41,12 +41,12 @@ namespace Web_GEarth.Controllers
         //[HttpPost]
         public IActionResult Register([FromBody]RegisterPostModel registerModel)
         {
-            var user = _userService.Register(registerModel);
-            if (user == null)
+            var errors = _userService.Register(registerModel);
+            if (errors != null)
             {
-                return BadRequest(new { ErrorMessage = "Username already exists." });
+                return BadRequest(errors);
             }
-            return Ok(user);
+            return Ok();
         }
 
         [HttpGet]

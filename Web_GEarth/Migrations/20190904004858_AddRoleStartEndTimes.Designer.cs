@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web_GEarth.Models;
 
 namespace Web_GEarth.Migrations
 {
     [DbContext(typeof(RoutesDbContext))]
-    partial class RoutesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190904004858_AddRoleStartEndTimes")]
+    partial class AddRoleStartEndTimes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,7 +106,7 @@ namespace Web_GEarth.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRole");
                 });
 
             modelBuilder.Entity("Web_GEarth.Models.UserUserRole", b =>
@@ -127,7 +129,7 @@ namespace Web_GEarth.Migrations
 
                     b.HasIndex("UserRoleId");
 
-                    b.ToTable("UsersUserRoles");
+                    b.ToTable("UserUserRole");
                 });
 
             modelBuilder.Entity("Web_GEarth.Models.Comment", b =>

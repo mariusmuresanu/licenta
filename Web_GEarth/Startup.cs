@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Web_GEarth.Services;
+using Web_GEarth.Validators;
 
 namespace Web_GEarth
 {
@@ -61,6 +62,7 @@ namespace Web_GEarth
             services.AddScoped<IRouteService, RouteService>();
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IRegisterValidator, RegisterValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

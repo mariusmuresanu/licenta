@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -10,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Web_GEarth.Models;
+using Web_GEarth.Validators;
 using Web_GEarth.ViewModels;
 
 namespace Web_GEarth.Services
@@ -17,7 +19,7 @@ namespace Web_GEarth.Services
     public interface IUsersService
     {
         UserGetModel Authenticate(string username, string password);
-        UserGetModel Register(RegisterPostModel registerInfo);
+        ErrorsCollection Register(RegisterPostModel registerInfo);
         User GetCurrentUser(HttpContext httpContext);
         IEnumerable<UserGetModel> GetAll();
     }
@@ -25,13 +27,14 @@ namespace Web_GEarth.Services
     public class UsersService : IUsersService
     {
         private RoutesDbContext context;
-
         private readonly AppSettings appSettings;
+        private IRegisterValidator registerValidator;
 
-        public UsersService(RoutesDbContext context, IOptions<AppSettings> appSettings)
+        public UsersService(RoutesDbContext context, IRegisterValidator registerValidator, IOptions<AppSettings> appSettings)
         {
             this.context = context;
             this.appSettings = appSettings.Value;
+            this.registerValidator = registerValidator;
         }
 
         public UserGetModel Authenticate(string username, string password)
@@ -52,7 +55,7 @@ namespace Web_GEarth.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.Username.ToString()),
-                    new Claim(ClaimTypes.Role, user.UserRole.ToString())
+                   // new Claim(ClaimTypes.Role, user.UserRole.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -89,25 +92,48 @@ namespace Web_GEarth.Services
             }
         }
 
-        public UserGetModel Register(RegisterPostModel registerInfo)
+        public ErrorsCollection Register(RegisterPostModel registerInfo)
         {
-            User existing = context.Users.FirstOrDefault(u => u.Username == registerInfo.Username);
-            if (existing != null)
+            var errors = registerValidator.Validate(registerInfo, context);
+            if (errors != null)
             {
-                return null;
+                return errors;
             }
 
-            context.Users.Add(new User
+            User toAdd = new User
             {
                 Email = registerInfo.Email,
                 LastName = registerInfo.LastName,
                 FirstName = registerInfo.FirstName,
                 Password = ComputeSha256Hash(registerInfo.Password),
                 Username = registerInfo.Username,
-                UserRole = UserRole.Regular
+                UserUserRoles = new List<UserUserRole>()
+            };
+
+            var regularRole = context
+                .UserRoles
+                .FirstOrDefault(ur => ur.Name == UserRoles.Regular);
+
+            context.Users.Add(toAdd);
+            context.UsersUserRoles.Add(new UserUserRole
+            {
+                User = toAdd,
+                UserRole = regularRole,
+                StartTime = DateTime.Now,
+                EndTime = null,
             });
+
+
             context.SaveChanges();
-            return Authenticate(registerInfo.Username, registerInfo.Password);
+            return null;
+        }
+
+        public UserRole GetCurrentUserRole(User user)
+        {
+            return user
+                .UserUserRoles
+                .FirstOrDefault(userUserRole => userUserRole.EndTime == null)
+                .UserRole;
         }
 
         public User GetCurrentUser(HttpContext httpContext)
@@ -115,7 +141,10 @@ namespace Web_GEarth.Services
             string username = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
             //string accountType = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.AuthenticationMethod).Value;
             //return _context.Users.FirstOrDefault(u => u.Username == username && u.AccountType.ToString() == accountType);
-            return context.Users.FirstOrDefault(u => u.Username == username);
+            return context
+                .Users
+                .Include(u => u.UserUserRoles)
+                .FirstOrDefault(u => u.Username == username);
         }
 
         public IEnumerable<UserGetModel> GetAll()
